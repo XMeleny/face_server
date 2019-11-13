@@ -1,4 +1,3 @@
-
 import pymysql
 
 
@@ -12,3 +11,4 @@ def init():
         charset='utf8'
     )
     return connector
+

@@ -4,27 +4,29 @@ import os
 import base64
 import face
 import connect
-#
+
 conn = connect.init()
-cursor=conn.cursor()
-known_face_encodings=[]
-known_face_names=[]
-images=[]
+cursor = conn.cursor()
+known_face_encodings = []
+known_face_names = []
+images = []
 sql = "SELECT * FROM person"
 cursor.execute(sql)
 rows = cursor.fetchall()
 # 依次遍历结果集，发现每个元素，就是表中的一条记录，用一个元组来显示
 for row in rows:
-    id=row[0]
+    id = row[0]
     known_face_encodings.append(face.encoding0_15ToNp_encoding(id))
-    name=row[1]
+    name = row[1]
     known_face_names.append(name)
-    img_path=row[2]
-    images.append(img_path)
+    image_data = row[3]
+    images.append(image_data)
 
-# x="hello"
+# todo: modify using id in encoding0_15 to using row
 
 app = Flask(__name__)
+
+
 @app.route("/", methods=['POST'])
 def get_frame():
     if request.method == 'POST':
@@ -47,17 +49,11 @@ def get_frame():
             file = open('result.png', 'wb')
             file.write(image_data)
             file.close()
-
-            # face_location = face.locate('result.png')
-            # return {"locations": face_location}
-            # return face.detect("faces/both.jpg")
-            return face.detect("result.png",known_face_encodings,known_face_names,images)
+            return face.detect("result.png", known_face_encodings, known_face_names, images)
         else:
             return 'fail'
+        # todo: deal with the fail situation
 
-
-# todo:return so little thing. Need to return names too.
-# todo:deal with the client
 
 if __name__ == "__main__":
     # app.run(port=5000)
