@@ -1,30 +1,20 @@
 import base64
 import io
-
 import PIL
 import cv2
 import face_recognition
-import mysql
 import numpy as np
 import pymysql
 import operator
 import connect
 
 
-def encoding0_15ToNp_encoding(id):
-    sql = "SELECT * FROM person where id=%d" % id
-    cursor.execute(sql)
-    row = cursor.fetchone()
-    # 依次遍历结果集，发现每个元素，就是表中的一条记录，用一个元组来显示
-    encodingList = []
-    for i in range(0, 16):
-        j = i + 4
-        encodingList.append(row[j])
+def encoding0_15ToNp_encoding(encodingList):
     floatList = []
     for item in encodingList:
-        strTOlist = item.split(',')
-        strTOlist = list(map(eval, strTOlist))
-        floatList.append(strTOlist)
+        strTolist = item.split(',')
+        strTolist = list(map(eval, strTolist))
+        floatList.append(strTolist)
     floatList = np.array(floatList)
     floatList = floatList.reshape(128)
     return floatList
@@ -34,6 +24,7 @@ conn = connect.init()
 cursor = conn.cursor()
 
 
+# todo: implement detecting Similarity
 def detect(image_path, known_face_encodings, known_face_names, images):
     print("processing picture")
 
@@ -47,18 +38,17 @@ def detect(image_path, known_face_encodings, known_face_names, images):
         # See if the face is a match for the known face(s)
         # 摄像中的人脸与已知人脸对比
         matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+        print(matches)
         name = "Unknown"
+        known_str = imgToStr("faces/Unknown.jpg")
         # face_distance用于计算相似度，距离越小越相似
         face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
         # argmin取最小值
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
-            # known_str = imgToStr(images[best_match_index])  # todo
-            known_str = binToStr(images[best_match_index])  # todo
-            # photo_encoding=known_face_encodings[best_match_index]
+            known_str = binToStr(images[best_match_index])
         face_names.append(name)
-        # print("known_str:"+known_str)
         photo_str.append(known_str)
 
     image1 = cv2.imread(image_path)
@@ -162,91 +152,19 @@ def insertSql(name, img_path):
 if __name__ == "__main__":
     known_face_encodings = []
     known_face_names = []
-    images = []
+    known_face_images = []
+
     sql = "SELECT * FROM person"
     cursor.execute(sql)
     rows = cursor.fetchall()
+
     # 依次遍历结果集，发现每个元素，就是表中的一条记录，用一个元组来显示
     for row in rows:
-        id = row[0]
-        known_face_encodings.append(encoding0_15ToNp_encoding(id))
-        name = row[1]
-        known_face_names.append(name)
-        image_data = row[3]
-        images.append(image_data)
+        # row[1] is name
+        # row[3] is image in binary data
+        # row[4:20] is face_encoding
+        known_face_names.append(row[1])
+        known_face_images.append(row[3])
+        known_face_encodings.append(encoding0_15ToNp_encoding(row[4:20]))
 
-    detect("faces/both.jpg", known_face_encodings, known_face_names, images)
-
-    # detect("faces/woman.jpg")
-    # insertSql("ysy", "faces/ysy.jpg")
-    # insertSql("xm", "faces/xm.jpg")
-    # encoding0_15ToNp_encoding(17)
-    # print("main()")
-
-    # 用元祖插入数据库
-    # img = face_recognition.load_image_file("faces/ysy.jpg")
-    # encoding = face_recognition.face_encodings(img)[0]
-    # encodings = np.array(encoding).reshape(16, 8)
-    # encodingList = encodings.tolist()
-    # strEncodingList = []
-    # for i in range(0, 16):
-    #     strEncoding = [str(x) for x in encodingList[i]]
-    #     string = ",".join(strEncoding)
-    #     strEncodingList.append(string)
-    #     # print(string)
-    # fp = open("faces/ysy.jpg", 'rb')
-    # img = fp.read()
-    # fp.close()
-    # imgTuple = ("ysy", "faces/ysy.jpg", pymysql.Binary(img))
-    # encodingTuple = tuple(strEncodingList)
-    # tuple = imgTuple + encodingTuple
-    # # print(tuple)
-    # sql = "INSERT INTO person(name,img_path,img,encoding0,encoding1,encoding2,encoding3,encoding4,encoding5,encoding6,encoding7,encoding8,encoding9,encoding10,encoding11,encoding12,encoding13,encoding14,encoding15) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-    # try:
-    #     # 执行sql
-    #     cursor.execute(sql, tuple)
-    #     conn.commit()
-    #     print("插入数据成功")
-    # except Exception as e:
-    #     print(e)
-    #     conn.rollback()
-    #     print("插入数据失败")
-
-    # strEncodingList=['' for i in range]
-    # print(strEncodingList)
-    # # print(encodingList)
-    # encodings=[[] for i in range(10)]
-    # encodings[0]=encodingList[0:10]
-    # print(encodings[0])
-    # print(len(encodings[0]))
-    # newEncodingList = [str(x) for x in encodingList]
-    # string=",".join(newEncodingList)
-    # print(string)
-
-    # strTOlist=string.split(',')
-    # print(strTOlist)
-    # strTOlist=list(map(eval,strTOlist))
-    # print(strTOlist)
-    # for item in encodingList:
-    #     result+=item
-    # print(ecoding)
-    # print(type(ecoding))
-    # print(encoding)
-    # print(type(encoding))
-
-    # np和list相互转换
-    # list转numpy
-    # np.array(a)
-    # ndarray转list
-    # a.tolist()
-
-    # 查询row[0]该行的第一列
-    # sql = "SELECT *FROM person"
-    # cursor.execute(sql)
-    # # 打印执行结果的条数
-    # print("表格行数：")
-    # print(cursor.rowcount)
-    # 将所有的结果放入rr中
-    # rr = cursor.fetchall()
-    # for row in rr:
-    #     print("ID是：=%s, img_path是：=%s, name是：=%s" % row)
+    detect("faces/both.jpg", known_face_encodings, known_face_names, known_face_images)

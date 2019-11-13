@@ -5,25 +5,26 @@ import base64
 import face
 import connect
 
-conn = connect.init()
-cursor = conn.cursor()
+# ******************************************init******************************************
 known_face_encodings = []
 known_face_names = []
-images = []
+known_face_images = []
+
+conn = connect.init()
+cursor = conn.cursor()
 sql = "SELECT * FROM person"
 cursor.execute(sql)
 rows = cursor.fetchall()
-# 依次遍历结果集，发现每个元素，就是表中的一条记录，用一个元组来显示
+
 for row in rows:
-    id = row[0]
-    known_face_encodings.append(face.encoding0_15ToNp_encoding(id))
-    name = row[1]
-    known_face_names.append(name)
-    image_data = row[3]
-    images.append(image_data)
+    # todo: when modify the database structure remember to modify here
+    known_face_names.append(row[1])
+    known_face_images.append(row[3])
+    known_face_encodings.append(face.encoding0_15ToNp_encoding(row[4:20]))
 
-# todo: modify using id in encoding0_15 to using row
+# ******************************************init******************************************
 
+# turn on the server
 app = Flask(__name__)
 
 
@@ -49,7 +50,7 @@ def get_frame():
             file = open('result.png', 'wb')
             file.write(image_data)
             file.close()
-            return face.detect("result.png", known_face_encodings, known_face_names, images)
+            return face.detect("result.png", known_face_encodings, known_face_names, known_face_images)
         else:
             return 'fail'
         # todo: deal with the fail situation
