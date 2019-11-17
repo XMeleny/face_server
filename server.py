@@ -6,6 +6,8 @@ import face
 import connect
 
 # ******************************************init******************************************
+unknown_str = face.imgToStr("faces/Unknown.jpg")
+
 known_face_encodings = []
 known_face_names = []
 known_face_images = []
@@ -17,10 +19,9 @@ cursor.execute(sql)
 rows = cursor.fetchall()
 
 for row in rows:
-    # todo: when modify the database structure remember to modify here
     known_face_names.append(row[1])
-    known_face_images.append(row[3])
-    known_face_encodings.append(face.encoding0_15ToNp_encoding(row[4:20]))
+    known_face_images.append(row[2])
+    known_face_encodings.append(face.encoding0_15ToNp_encoding(row[3:19]))
 
 # ******************************************init******************************************
 
@@ -50,7 +51,7 @@ def get_frame():
             file = open('result.png', 'wb')
             file.write(image_data)
             file.close()
-            return face.detect("result.png", known_face_encodings, known_face_names, known_face_images)
+            return face.detect("result.png", known_face_encodings, known_face_names, known_face_images,unknown_str)
         else:
             return 'fail'
         # todo: deal with the fail situation
