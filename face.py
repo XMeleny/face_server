@@ -111,10 +111,12 @@ def insertSql(name, img_path):
         cursor.execute(sql, tuple1)
         conn.commit()
         print("插入数据成功")
+        return {"result": "success"}
     except Exception as e:
         print(e)
         conn.rollback()
         print("插入数据失败")
+        return {"result": "fail"}
 
 
 if __name__ == "__main__":

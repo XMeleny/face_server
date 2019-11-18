@@ -29,7 +29,7 @@ for row in rows:
 app = Flask(__name__)
 
 
-@app.route("/", methods=['POST'])
+@app.route("/detectface", methods=['POST'])
 def get_frame():
     if request.method == 'POST':
         print("get photo")
@@ -55,6 +55,33 @@ def get_frame():
         else:
             return 'fail'
         # todo: deal with the fail situation
+
+
+@app.route("/addface", methods=['POST'])
+def addFace():
+    if request.method == 'POST':
+        print("in addFace")
+        """from json"""
+        # json = request.json
+        # if json:
+        #     image_data = base64.b64decode(json["image_str"])
+        #     file = open('result.png', 'wb')
+        #     file.write(image_data)
+        #     file.close()
+        #     print(json["test_str"])
+        #     return 'success'
+        # else:
+        #     return 'fail'
+        """from form"""
+        image_str = request.form.get("image_str")
+        name=request.form.get("addFaceName")
+        if image_str:
+            image_data = base64.b64decode(image_str)
+            file = open('result.png', 'wb')
+            file.write(image_data)
+            file.close()
+        return face.insertSql(name,"result.png")
+
 
 
 if __name__ == "__main__":
