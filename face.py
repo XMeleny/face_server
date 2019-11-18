@@ -41,31 +41,33 @@ def detect(image_path, known_face_encodings, known_face_names, images, unknown_s
     count = str(len(face_locations))
     face_names = []
     photo_str = []
+
     for face_encoding in face_encodings:
         # init
         name = "Unknown"
         known_str = unknown_str
-
         # face_compare摄像中的人脸与已知人脸对比
         # face_distance用于计算相似度，距离越小越相似
         # np.argmin取出最小值所在坐标
         matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
         face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
         best_match_index = np.argmin(face_distances)
-        similarities.append(max(1 - np.linalg.norm(face_encodings - face_encoding, axis=1)))
-
+        # similarities.append(max(1 - np.linalg.norm(face_encodings - face_encoding, axis=1)))
+        similarities.append(1-face_distances[best_match_index])
         # 假如能匹配上，才作修改
-        if matches[best_match_index]:
-            name = known_face_names[best_match_index]
-            known_str = binToStr(images[best_match_index])
-            new_image = cv2.imread(image_path)
-            for (top, right, bottom, left), name in zip(face_locations, face_names):
-                print(top, right, bottom, left)
-                cv2.rectangle(new_image, (left, top), (right, bottom), (0, 0, 255), 20)
-            cv2.imwrite(image_path, new_image)
+        if(1-face_distances[best_match_index]>0.55):
+            if matches[best_match_index]:
+                name = known_face_names[best_match_index]
+                known_str = binToStr(images[best_match_index])
 
         face_names.append(name)
         photo_str.append(known_str)
+
+    new_image = cv2.imread(image_path)
+    for (top, right, bottom, left), name in zip(face_locations, face_names):
+        print(top, right, bottom, left)
+        cv2.rectangle(new_image, (left, top), (right, bottom), (0, 0, 255), 20)
+    cv2.imwrite(image_path, new_image)
 
     print("face_locations: ", face_locations)
     print("face_names: ", face_names)
