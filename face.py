@@ -119,25 +119,25 @@ def insertSql(name, img_path):
         return {"result": "fail"}
 
 
-if __name__ == "__main__":
-    unknown_str = imgToStr("faces/Unknown.jpg")
-
-    known_face_encodings = []
-    known_face_names = []
-    known_face_images = []
-
-    sql = "SELECT * FROM person"
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-
-    # 依次遍历结果集，发现每个元素，就是表中的一条记录，用一个元组来显示
-
-    for row in rows:
-        # row[1] is name
-        # row[2] is image in binary data
-        # row[3:19] is face_encoding
-        known_face_names.append(row[1])
-        known_face_images.append(row[2])
-        known_face_encodings.append(encoding0_15ToNp_encoding(row[3:19]))
-
-    detect("faces/both.jpg", known_face_encodings, known_face_names, known_face_images, unknown_str)
+# if __name__ == "__main__":
+#     unknown_str = imgToStr("faces/Unknown.jpg")
+#
+#     known_face_encodings = []
+#     known_face_names = []
+#     known_face_images = []
+#
+#     sql = "SELECT * FROM person"
+#     cursor.execute(sql)
+#     rows = cursor.fetchall()
+#
+#     # 依次遍历结果集，发现每个元素，就是表中的一条记录，用一个元组来显示
+#
+#     for row in rows:
+#         # row[1] is name
+#         # row[2] is image in binary data
+#         # row[3:19] is face_encoding
+#         known_face_names.append(row[1])
+#         known_face_images.append(row[2])
+#         known_face_encodings.append(encoding0_15ToNp_encoding(row[3:19]))
+#
+#     detect("faces/both.jpg", known_face_encodings, known_face_names, known_face_images, unknown_str)
