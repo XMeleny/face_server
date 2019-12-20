@@ -6,22 +6,7 @@ import face
 import connect
 
 # ******************************************init******************************************
-unknown_str = face.imgToStr("faces/Unknown.jpg")
 
-known_face_encodings = []
-known_face_names = []
-known_face_images = []
-
-conn = connect.init()
-cursor = conn.cursor()
-sql = "SELECT * FROM person"
-cursor.execute(sql)
-rows = cursor.fetchall()
-
-for row in rows:
-    known_face_names.append(row[1])
-    known_face_images.append(row[2])
-    known_face_encodings.append(face.encoding0_15ToNp_encoding(row[3:19]))
 
 # ******************************************init******************************************
 
@@ -31,6 +16,23 @@ app = Flask(__name__)
 
 @app.route("/detectface", methods=['POST'])
 def get_frame():
+    unknown_str = face.imgToStr("faces/Unknown.jpg")
+
+    known_face_encodings = []
+    known_face_names = []
+    known_face_images = []
+
+    conn = connect.init()
+    cursor = conn.cursor()
+    sql = "SELECT * FROM person"
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+
+    for row in rows:
+        known_face_names.append(row[1])
+        known_face_images.append(row[2])
+        known_face_encodings.append(face.encoding0_15ToNp_encoding(row[3:19]))
+
     if request.method == 'POST':
         print("get photo")
         """from json"""
@@ -59,6 +61,22 @@ def get_frame():
 
 @app.route("/addface", methods=['POST'])
 def addFace():
+    unknown_str = face.imgToStr("faces/Unknown.jpg")
+
+    known_face_encodings = []
+    known_face_names = []
+    known_face_images = []
+
+    conn = connect.init()
+    cursor = conn.cursor()
+    sql = "SELECT * FROM person"
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+
+    for row in rows:
+        known_face_names.append(row[1])
+        known_face_images.append(row[2])
+        known_face_encodings.append(face.encoding0_15ToNp_encoding(row[3:19]))
     if request.method == 'POST':
         print("in addFace")
         """from json"""
